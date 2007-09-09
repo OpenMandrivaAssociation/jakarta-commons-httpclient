@@ -88,7 +88,7 @@ rm -rf docs/apidocs docs/*.patch docs/*.orig docs/*.rej
 
 
 %build
-export CLASSPATH=%(build-classpath jsse jce junit jakarta-commons-codec jakarta-commons-logging)
+export CLASSPATH=$(build-classpath jsse jce junit jakarta-commons-codec jakarta-commons-logging)
 %ant \
   -Dbuild.sysclasspath=first \
   -Djavadoc.j2sdk.link=%{_javadocdir}/java \
