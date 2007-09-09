@@ -1,7 +1,7 @@
 %define short_name httpclient
 %define name       jakarta-commons-%{short_name}
 %define version    3.0.1
-%define release    3
+%define release    4
 %define gcj_support 1
 %define section    free
 
