@@ -148,7 +148,7 @@ rm -f src/test/org/apache/commons/httpclient/params/TestSSLTunnelParams.java
 %{__sed} -i 's/\r//' LICENSE.txt
 
 %build
-export CLASSPATH=%(build-classpath jsse jce jakarta-commons-codec jakarta-commons-logging junit)
+export CLASSPATH=$(build-classpath jsse jce jakarta-commons-codec jakarta-commons-logging junit)
 %{ant} \
   -Dbuild.sysclasspath=first \
   -Djavadoc.j2sdk.link=%{_javadocdir}/java \
