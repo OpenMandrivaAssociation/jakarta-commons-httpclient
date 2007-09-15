@@ -36,7 +36,7 @@
 
 Name:           jakarta-commons-httpclient
 Version:        3.0.1
-Release:        %mkrel 4.0.0
+Release:        %mkrel 4.0.1
 Epoch:          1
 Summary: Jakarta Commons HTTPClient implements the client side of HTTP standards
 License:        Apache Software License
@@ -71,8 +71,6 @@ Obsoletes:      jakarta-commons-httpclient3 < %{epoch}:%{version}-%{release}
 
 %if %{gcj_support}
 BuildRequires:       java-gcj-compat-devel
-Requires(post):      java-gcj-compat
-Requires(postun):    java-gcj-compat
 %endif
 
 %description
