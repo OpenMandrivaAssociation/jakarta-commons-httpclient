@@ -36,7 +36,7 @@
 
 Name:           jakarta-commons-httpclient
 Version:        3.0.1
-Release:        %mkrel 4.0.1
+Release:        %mkrel 4.0.2
 Epoch:          1
 Summary: Jakarta Commons HTTPClient implements the client side of HTTP standards
 License:        Apache Software License
@@ -51,7 +51,7 @@ Buildarch:      noarch
 %endif
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root
 
-BuildRequires:  jpackage-utils >= 0:1.5
+BuildRequires:  java-rpmbuild >= 0:1.5
 BuildRequires:  ant
 BuildRequires:  jakarta-commons-codec
 BuildRequires:  jakarta-commons-logging >= 0:1.0.3
