@@ -49,7 +49,6 @@ Group:          Development/Java
 %if ! %{gcj_support}
 Buildarch:      noarch
 %endif
-BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root
 
 BuildRequires:  java-rpmbuild >= 0:1.5
 BuildRequires:  ant
