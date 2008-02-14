@@ -46,6 +46,7 @@ Patch0:         %{name}-disablecryptotests.patch
 Patch1:         %{name}-addosgimanifest.patch
 URL:            http://jakarta.apache.org/commons/httpclient/
 Group:          Development/Java
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 %if ! %{gcj_support}
 Buildarch:      noarch
 %endif
