@@ -35,21 +35,21 @@
 %define short_name httpclient
 
 Name:           jakarta-commons-httpclient
-Version:        3.0.1
-Release:        %mkrel 4.0.2
+Version:        3.1
+Release:        %mkrel 0.1.1
 Epoch:          1
 Summary: Jakarta Commons HTTPClient implements the client side of HTTP standards
 License:        Apache Software License
-Source0:        http://archive.apache.org/dist/jakarta/commons/httpclient/source/commons-httpclient-3.0.1-src.tar.gz
+Source0:         http://archive.apache.org/dist/httpcomponents/commons-httpclient/source/commons-httpclient-3.1-src.tar.gz
 Patch0:         %{name}-disablecryptotests.patch
 # Add OSGi MANIFEST.MF bits
 Patch1:         %{name}-addosgimanifest.patch
 URL:            http://jakarta.apache.org/commons/httpclient/
 Group:          Development/Java
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 %if ! %{gcj_support}
 Buildarch:      noarch
 %endif
+BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 
 BuildRequires:  java-rpmbuild >= 0:1.5
 BuildRequires:  ant
@@ -182,37 +182,26 @@ rm -f dist/docs/{BUILDING,TESTING}.txt
 ln -s %{_javadocdir}/%{name}-%{version} dist/docs/apidocs
 
 
-%if %{gcj_support}
-%{_bindir}/aot-compile-rpm
-%endif
+%{gcj_compile}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %if %{gcj_support}
 %post
-if [ -x %{_bindir}/rebuild-gcj-db ]
-then
-  %{_bindir}/rebuild-gcj-db
-fi
+%{update_gcjdb}
 %endif
 
 %if %{gcj_support}
 %postun
-if [ -x %{_bindir}/rebuild-gcj-db ]
-then
-  %{_bindir}/rebuild-gcj-db
-fi
+%{clean_gcjdb}
 %endif
 
 %files
 %defattr(0644,root,root,0755)
 %doc LICENSE.txt README.txt RELEASE_NOTES.txt
 %{_javadir}/*
-
-%if %{gcj_support}
-%attr(-,root,root) %{_libdir}/gcj/%{name}
-%endif
+%{gcj_files}
 
 %files javadoc
 %defattr(0644,root,root,0755)
