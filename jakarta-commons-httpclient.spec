@@ -156,26 +156,26 @@ export CLASSPATH=$(build-classpath jsse jce jakarta-commons-codec jakarta-common
 
 
 %install
-rm -rf $RPM_BUILD_ROOT
+rm -rf %{buildroot}
 
 # jars
-mkdir -p $RPM_BUILD_ROOT%{_javadir}
+mkdir -p %{buildroot}%{_javadir}
 cp -p dist/commons-httpclient.jar \
-  $RPM_BUILD_ROOT%{_javadir}/%{name}-%{version}.jar
-(cd $RPM_BUILD_ROOT%{_javadir} && for jar in *-%{version}.jar; do ln -sf ${jar} `echo $jar| sed "s|jakarta-||g"`; done)
-(cd $RPM_BUILD_ROOT%{_javadir} && for jar in *-%{version}.jar; do ln -sf ${jar} `echo $jar| sed "s|-%{version}||g"`; done)
+  %{buildroot}%{_javadir}/%{name}-%{version}.jar
+(cd %{buildroot}%{_javadir} && for jar in *-%{version}.jar; do ln -sf ${jar} `echo $jar| sed "s|jakarta-||g"`; done)
+(cd %{buildroot}%{_javadir} && for jar in *-%{version}.jar; do ln -sf ${jar} `echo $jar| sed "s|-%{version}||g"`; done)
 # compat symlink
-pushd $RPM_BUILD_ROOT%{_javadir}
+pushd %{buildroot}%{_javadir}
 ln -s commons-httpclient.jar commons-httpclient3.jar
 popd
 
 # javadoc
-mkdir -p $RPM_BUILD_ROOT%{_javadocdir}
-mv dist/docs/api $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{version}
+mkdir -p %{buildroot}%{_javadocdir}
+mv dist/docs/api %{buildroot}%{_javadocdir}/%{name}-%{version}
 
 # demo
-mkdir -p $RPM_BUILD_ROOT%{_datadir}/%{name}
-cp -pr src/examples src/contrib $RPM_BUILD_ROOT%{_datadir}/%{name}
+mkdir -p %{buildroot}%{_datadir}/%{name}
+cp -pr src/examples src/contrib %{buildroot}%{_datadir}/%{name}
 
 # manual and docs
 rm -f dist/docs/{BUILDING,TESTING}.txt
@@ -185,7 +185,7 @@ ln -s %{_javadocdir}/%{name}-%{version} dist/docs/apidocs
 %{gcj_compile}
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+rm -rf %{buildroot}
 
 %if %{gcj_support}
 %post
