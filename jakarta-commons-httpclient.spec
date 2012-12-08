@@ -36,7 +36,7 @@
 
 Name:           jakarta-commons-httpclient
 Version:        3.1
-Release:        %mkrel 2.3.6
+Release:        2.3.7
 Epoch:          1
 Summary: Jakarta Commons HTTPClient implements the client side of HTTP standards
 License:        Apache Software License
@@ -49,10 +49,10 @@ Group:          Development/Java
 %if ! %{gcj_support}
 Buildarch:      noarch
 %endif
-BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 
 BuildRequires:  java-rpmbuild >= 0:1.5
 BuildRequires:  ant
+BuildRequires:  locales-en
 BuildRequires:  jakarta-commons-codec
 BuildRequires:  jakarta-commons-logging >= 0:1.0.3
 BuildRequires:  jce >= 0:1.2.2
@@ -146,6 +146,7 @@ rm -f src/test/org/apache/commons/httpclient/params/TestSSLTunnelParams.java
 %{__sed} -i 's/\r//' LICENSE.txt
 
 %build
+export LC_ALL=ISO-8859-1
 export CLASSPATH=$(build-classpath jsse jce jakarta-commons-codec jakarta-commons-logging junit)
 %{ant} \
   -Dbuild.sysclasspath=first \
@@ -156,26 +157,24 @@ export CLASSPATH=$(build-classpath jsse jce jakarta-commons-codec jakarta-common
 
 
 %install
-rm -rf %{buildroot}
-
 # jars
-mkdir -p %{buildroot}%{_javadir}
+mkdir -p $RPM_BUILD_ROOT%{_javadir}
 cp -p dist/commons-httpclient.jar \
-  %{buildroot}%{_javadir}/%{name}-%{version}.jar
-(cd %{buildroot}%{_javadir} && for jar in *-%{version}.jar; do ln -sf ${jar} `echo $jar| sed "s|jakarta-||g"`; done)
-(cd %{buildroot}%{_javadir} && for jar in *-%{version}.jar; do ln -sf ${jar} `echo $jar| sed "s|-%{version}||g"`; done)
+  $RPM_BUILD_ROOT%{_javadir}/%{name}-%{version}.jar
+(cd $RPM_BUILD_ROOT%{_javadir} && for jar in *-%{version}.jar; do ln -sf ${jar} `echo $jar| sed "s|jakarta-||g"`; done)
+(cd $RPM_BUILD_ROOT%{_javadir} && for jar in *-%{version}.jar; do ln -sf ${jar} `echo $jar| sed "s|-%{version}||g"`; done)
 # compat symlink
-pushd %{buildroot}%{_javadir}
+pushd $RPM_BUILD_ROOT%{_javadir}
 ln -s commons-httpclient.jar commons-httpclient3.jar
 popd
 
 # javadoc
-mkdir -p %{buildroot}%{_javadocdir}
-mv dist/docs/api %{buildroot}%{_javadocdir}/%{name}-%{version}
+mkdir -p $RPM_BUILD_ROOT%{_javadocdir}
+mv dist/docs/api $RPM_BUILD_ROOT%{_javadocdir}/%{name}-%{version}
 
 # demo
-mkdir -p %{buildroot}%{_datadir}/%{name}
-cp -pr src/examples src/contrib %{buildroot}%{_datadir}/%{name}
+mkdir -p $RPM_BUILD_ROOT%{_datadir}/%{name}
+cp -pr src/examples src/contrib $RPM_BUILD_ROOT%{_datadir}/%{name}
 
 # manual and docs
 rm -f dist/docs/{BUILDING,TESTING}.txt
@@ -185,7 +184,7 @@ ln -s %{_javadocdir}/%{name}-%{version} dist/docs/apidocs
 %{gcj_compile}
 
 %clean
-rm -rf %{buildroot}
+rm -rf $RPM_BUILD_ROOT
 
 %if %{gcj_support}
 %post
@@ -214,3 +213,105 @@ rm -rf %{buildroot}
 %files manual
 %defattr(0644,root,root,0755)
 %doc dist/docs/*
+
+
+%changelog
+* Wed May 04 2011 Oden Eriksson <oeriksson@mandriva.com> 1:3.1-2.3.6mdv2011.0
++ Revision: 665803
+- mass rebuild
+
+* Fri Dec 03 2010 Oden Eriksson <oeriksson@mandriva.com> 1:3.1-2.3.5mdv2011.0
++ Revision: 606055
+- rebuild
+
+* Wed Mar 17 2010 Oden Eriksson <oeriksson@mandriva.com> 1:3.1-2.3.4mdv2010.1
++ Revision: 522978
+- rebuilt for 2010.1
+
+* Wed Sep 02 2009 Christophe Fergeau <cfergeau@mandriva.com> 1:3.1-2.3.3mdv2010.0
++ Revision: 425437
+- rebuild
+
+* Sat Mar 07 2009 Antoine Ginies <aginies@mandriva.com> 1:3.1-2.3.2mdv2009.1
++ Revision: 351281
+- rebuild
+
+* Sun Aug 10 2008 Alexander Kurtakov <akurtakov@mandriva.org> 1:3.1-2.3.1mdv2009.0
++ Revision: 270132
+- update OSGi manifest
+
+* Wed Aug 06 2008 Thierry Vignaud <tv@mandriva.org> 1:3.1-2.1.1mdv2009.0
++ Revision: 264717
+- rebuild early 2009.0 package (before pixel changes)
+
+* Mon Apr 21 2008 Alexander Kurtakov <akurtakov@mandriva.org> 1:3.1-0.1.1mdv2009.0
++ Revision: 196295
+- new version
+
+  + Thierry Vignaud <tv@mandriva.org>
+    - fix no-buildroot-tag
+    - kill re-definition of %%buildroot on Pixel's request
+
+* Sun Dec 16 2007 Anssi Hannula <anssi@mandriva.org> 1:3.0.1-4.0.2mdv2008.1
++ Revision: 120912
+- buildrequire java-rpmbuild, i.e. build with icedtea on x86(_64)
+
+* Sat Sep 15 2007 Anssi Hannula <anssi@mandriva.org> 1:3.0.1-4.0.1mdv2008.0
++ Revision: 87409
+- rebuild to filter out autorequires of GCJ AOT objects
+- remove unnecessary Requires(post) on java-gcj-compat
+
+* Tue Sep 11 2007 David Walluck <walluck@mandriva.org> 1:3.0.1-4.0.0mdv2008.0
++ Revision: 84555
+- fix build-classpath call
+- sync with fc to add osgi manifest
+
+* Sun Sep 09 2007 Pascal Terjan <pterjan@mandriva.org> 1:3.0.1-4mdv2008.0
++ Revision: 83392
+- Make the package submitable
+- rebuild
+- rebuild
+
+
+* Thu Mar 15 2007 Christiaan Welvaart <spturtle@mandriva.org> 3.0.1-2mdv2007.1
++ Revision: 143920
+- rebuild for 2007.1
+- Import jakarta-commons-httpclient
+
+* Sat Jun 03 2006 David Walluck <walluck@mandriva.org> 1:3.0.1-1mdv2007.0
+- 3.0.1
+- rebuild for libgcj.so.7
+
+* Sun Jan 15 2006 David Walluck <walluck@mandriva.org> 1:3.0-2mdk
+- BuildRequires: java-devel, java-gcj-compat-devel
+
+* Wed Jan 11 2006 David Walluck <walluck@mandriva.org> 1:3.0-1mdk
+- 3.0
+- aot compile
+
+* Sun Sep 11 2005 David Walluck <walluck@mandriva.org> 1:3.0-0.rc2.1mdk
+- release
+
+* Thu Jun 16 2005 Gary Benson <gbenson@redhat.com> - 1:3.0-0.rc2.0jpp_1fc
+- Build into Fedora.
+
+* Wed Jun 08 2005 Gary Benson <gbenson@redhat.com>
+- Avoid an API hole in libgcj's Swing implementation.
+- Skip tests (suite is full of Sun-specific classes).
+
+* Fri May 06 2005 Fernando Nasser <fnasser@redhat.com> - 1:3.0-0.rc2.1jpp_1rh
+- First Red Hat build
+
+* Fri May 06 2005 Fernando Nasser <fnasser@redhat.com> - 1:3.0-0.rc2.1jpp
+- Update to 3.0 rc2.
+
+* Tue Nov 23 2004 Fernando Nasser <fnasser@redhat.com> - 1:2.0.2-1jpp_1rh
+- Merge with upstream for upgrade
+
+* Thu Nov 04 2004 Ville Skyttä <ville.skytta at iki.fi> - 1:2.0.2-1jpp
+- Update to 2.0.2.
+- Fix Group tag in -manual.
+
+* Tue Aug 24 2004 Randy Watler <rwatler at finali.com> - 0:2.0-2jpp
+- Rebuild with ant-1.6.2
+
