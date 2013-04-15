@@ -54,15 +54,15 @@ BuildRequires:  java-rpmbuild >= 0:1.5
 BuildRequires:  ant
 BuildRequires:  locales-en
 BuildRequires:  jakarta-commons-codec
-BuildRequires:  jakarta-commons-logging >= 0:1.0.3
+BuildRequires:  commons-logging
 BuildRequires:  jce >= 0:1.2.2
 BuildRequires:  jsse >= 0:1.0.3.01
 #BuildRequires:  java-javadoc
-BuildRequires:  jakarta-commons-logging-javadoc
+BuildRequires:  commons-logging-javadoc
 BuildRequires:  junit
 #BuildRequires:  jaxp = 1.3
 
-Requires:       jakarta-commons-logging >= 0:1.0.3
+Requires:       commons-logging
 
 Provides:       commons-httpclient = %{epoch}:%{version}-%{release}
 Obsoletes:      commons-httpclient < %{epoch}:%{version}-%{release}
@@ -184,7 +184,6 @@ ln -s %{_javadocdir}/%{name}-%{version} dist/docs/apidocs
 %{gcj_compile}
 
 %clean
-rm -rf $RPM_BUILD_ROOT
 
 %if %{gcj_support}
 %post
