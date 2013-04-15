@@ -38,7 +38,7 @@
 
 Name:           jakarta-commons-httpclient
 Version:        3.1
-Release:        2.3.7
+Release:        2.3.8
 Epoch:          1
 Summary: Jakarta Commons HTTPClient implements the client side of HTTP standards
 License:        Apache Software License
@@ -62,6 +62,7 @@ BuildRequires:  jsse >= 0:1.0.3.01
 #BuildRequires:  java-javadoc
 BuildRequires:  commons-logging-javadoc
 BuildRequires:  junit
+BuildRequires:  java-1.7.0-openjdk-devel
 #BuildRequires:  jaxp = 1.3
 
 Requires:       commons-logging
@@ -149,7 +150,7 @@ rm -f src/test/org/apache/commons/httpclient/params/TestSSLTunnelParams.java
 
 %build
 export LC_ALL=ISO-8859-1
-# export CLASSPATH=$(build-classpath jsse jce jakarta-commons-codec commons-logging junit)
+export CLASSPATH=$(build-classpath jsse jce jakarta-commons-codec commons-logging junit)
 %{ant} \
   -Dbuild.sysclasspath=first \
   -Djavadoc.j2sdk.link=%{_javadocdir}/java \
