@@ -150,7 +150,7 @@ rm -f src/test/org/apache/commons/httpclient/params/TestSSLTunnelParams.java
 %build
 export LC_ALL=ISO-8859-1
 export CLASSPATH=$(build-classpath jsse jce jakarta-commons-codec commons-logging junit)
-%{ant} \
+ant \
   -Dbuild.sysclasspath=first \
   -Djavadoc.j2sdk.link=%{_javadocdir}/java \
   -Djavadoc.logging.link=%{_javadocdir}/commons-logging \
