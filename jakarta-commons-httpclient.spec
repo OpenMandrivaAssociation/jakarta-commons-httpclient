@@ -34,6 +34,8 @@
 
 %define short_name httpclient
 
+%define debug_package %{nil}
+
 Name:           jakarta-commons-httpclient
 Version:        3.1
 Release:        2.3.7
