@@ -1,5 +1,5 @@
 --- MANIFEST.MF	2007-09-06 12:31:02.000000000 -0400
-+++ /tmp/orb/org.apache.commons.httpclient/META-INF/MANIFEST.MF	2007-09-06 12:30:45.000000000 -0400
++++ MANIFEST.MF	2007-09-06 12:30:45.000000000 -0400
 @@ -3,4 +3,27 @@
  Specification-Version: 1.0
  Implementation-Vendor: Apache Software Foundation

@@ -44,8 +44,12 @@ Summary: Jakarta Commons HTTPClient implements the client side of HTTP standards
 License:        Apache Software License
 Source0:         http://archive.apache.org/dist/httpcomponents/commons-httpclient/source/commons-httpclient-3.1-src.tar.gz
 Patch0:         %{name}-disablecryptotests.patch
+Patch2:         %{name}-encoding.patch
 # Add OSGi MANIFEST.MF bits
-Patch1:         %{name}-addosgimanifest.patch
+Patch1:		%{name}-addosgimanifest.patch
+# CVE-2012-5783: missing connection hostname check against X.509 certificate name
+# https://fisheye6.atlassian.com/changelog/httpcomponents?cs=1422573
+Patch3:         %{name}-CVE-2012-5783.patch
 URL:            http://jakarta.apache.org/commons/httpclient/
 Group:          Development/Java
 %if ! %{gcj_support}
@@ -117,18 +121,18 @@ Requires:       %{name}-javadoc = %{epoch}:%{version}-%{release}
 %description    manual
 %{summary}.
 
-
 %prep
 %setup -q -n commons-httpclient-%{version}
 mkdir lib # duh
 rm -rf docs/apidocs docs/*.patch docs/*.orig docs/*.rej
 
-%patch0
-
+%patch0 -p1
 pushd src/conf
 %{__sed} -i 's/\r//' MANIFEST.MF
 %patch1
 popd
+%patch2
+%patch3 -p2
 
 # Use javax classes, not com.sun ones
 # assume no filename contains spaces
@@ -185,8 +189,6 @@ ln -s %{_javadocdir}/%{name}-%{version} dist/docs/apidocs
 
 
 %{gcj_compile}
-
-%clean
 
 %if %{gcj_support}
 %post
