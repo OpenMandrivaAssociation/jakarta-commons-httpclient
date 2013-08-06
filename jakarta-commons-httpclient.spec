@@ -31,7 +31,8 @@
 %define debug_package %{nil}
 %define _with_gcj_support 0
 
-%define gcj_support %{?_with_gcj_support:1}%{!?_with_gcj_support:%{?_without_gcj_support:0}%{!?_without_gcj_support:%{?_gcj_support:%{_gcj_support}}%{!?_gcj_support:0}}}
+#%define gcj_support %{?_with_gcj_support:1}%{!?_with_gcj_support:%{?_without_gcj_support:0}%{!?_without_gcj_support:%{?_gcj_support:%{_gcj_support}}%{!?_gcj_support:0}}}
+%define gcj_support 0
 
 %define short_name httpclient
 
@@ -144,7 +145,7 @@ sed -i 's/\r//' LICENSE.txt
 
 %build
 export LC_ALL=ISO-8859-1
-export CLASSPATH=$(build-classpath jsse jce jakarta-commons-codec commons-logging junit)
+export CLASSPATH=$(build-classpath jsse jce commons-codec commons-logging junit)
 %ant \
 	-Dbuild.sysclasspath=first \
 	-Djavadoc.j2sdk.link=%{_javadocdir}/java \
