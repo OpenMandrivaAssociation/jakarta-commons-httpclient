@@ -40,7 +40,7 @@ Summary:	Jakarta Commons HTTPClient implements the client side of HTTP standards
 Name:		jakarta-commons-httpclient
 Epoch:		1
 Version:	3.1
-Release:	5
+Release:	6
 License:	Apache Software License
 Group:		Development/Java
 Url:		http://jakarta.apache.org/commons/httpclient/
