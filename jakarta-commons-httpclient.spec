@@ -1,3 +1,4 @@
+%{?_javapackages_macros:%_javapackages_macros}
 # Copyright (c) 2000-2007, JPackage Project
 # All rights reserved.
 #
@@ -28,48 +29,44 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #
 
-%define debug_package %{nil}
-%define _with_gcj_support 0
+%global short_name httpclient
 
-#%define gcj_support %{?_with_gcj_support:1}%{!?_with_gcj_support:%{?_without_gcj_support:0}%{!?_without_gcj_support:%{?_gcj_support:%{_gcj_support}}%{!?_gcj_support:0}}}
-%define gcj_support 0
-
-%define short_name httpclient
-
-Summary:	Jakarta Commons HTTPClient implements the client side of HTTP standards
-Name:		jakarta-commons-httpclient
-Epoch:		1
-Version:	3.1
-Release:	7
-License:	Apache Software License
-Group:		Development/Java
-Url:		http://jakarta.apache.org/commons/httpclient/
-Source0:	http://archive.apache.org/dist/httpcomponents/commons-httpclient/source/commons-httpclient-3.1-src.tar.gz
-Patch0:		%{name}-disablecryptotests.patch
-Patch2:		%{name}-encoding.patch
+Name:           jakarta-commons-httpclient
+Version:        3.1
+Release:        14.1%{?dist}
+Epoch:          1
+Summary: Jakarta Commons HTTPClient implements the client side of HTTP standards
+License:        ASL 2.0 and (ASL 2.0 or LGPLv2+)
+Source0:        http://archive.apache.org/dist/httpcomponents/commons-httpclient/source/commons-httpclient-3.1-src.tar.gz
+Source1:        http://repo.maven.apache.org/maven2/commons-httpclient/commons-httpclient/%{version}/commons-httpclient-%{version}.pom
+Patch0:         %{name}-disablecryptotests.patch
 # Add OSGi MANIFEST.MF bits
-Patch1:		%{name}-addosgimanifest.patch
-# CVE-2012-5783:	missing connection hostname check against X.509 certificate name
+Patch1:         %{name}-addosgimanifest.patch
+Patch2:         %{name}-encoding.patch
+# CVE-2012-5783: missing connection hostname check against X.509 certificate name
 # https://fisheye6.atlassian.com/changelog/httpcomponents?cs=1422573
-Patch3:		%{name}-CVE-2012-5783.patch
-%if !%{gcj_support}
-Buildarch:	noarch
-%else
-BuildRequires:	java-gcj-compat-devel
-%endif
-BuildRequires:	ant
-BuildRequires:	commons-logging
-BuildRequires:	commons-logging-javadoc
-BuildRequires:	jakarta-commons-codec
-BuildRequires:	java-rpmbuild >= 0:1.5
-BuildRequires:	java-1.7.0-openjdk-devel
-BuildRequires:	jce >= 0:1.2.2
-BuildRequires:	jsse >= 0:1.0.3.01
-BuildRequires:	junit
-BuildRequires:	locales-en
-Requires:	commons-logging
-%rename		commons-httpclient
-%rename		jakarta-commons-httpclient3
+Patch3:         %{name}-CVE-2012-5783.patch
+URL:            http://jakarta.apache.org/commons/httpclient/
+
+BuildArch:      noarch
+
+BuildRequires:  jpackage-utils >= 0:1.5
+BuildRequires:  ant
+BuildRequires:  apache-commons-codec
+BuildRequires:  apache-commons-logging >= 0:1.0.3
+#BuildRequires:  java-javadoc
+BuildRequires:  apache-commons-logging-javadoc
+BuildRequires:  junit
+
+Requires:       java
+Requires:       jpackage-utils
+Requires:       apache-commons-logging >= 0:1.0.3
+Requires:       apache-commons-codec
+
+Provides:       commons-httpclient = %{epoch}:%{version}-%{release}
+Obsoletes:      commons-httpclient < %{epoch}:%{version}-%{release}
+Provides:       jakarta-commons-httpclient3 = %{epoch}:%{version}-%{release}
+Obsoletes:      jakarta-commons-httpclient3 < %{epoch}:%{version}-%{release}
 
 %description
 The Hyper-Text Transfer Protocol (HTTP) is perhaps the most significant
@@ -90,38 +87,42 @@ service clients, or systems that leverage or extend the HTTP protocol
 for distributed communication.
 
 %package        javadoc
-Summary:	Javadoc for %{name}
-Group:		Development/Java
+Summary:        Javadoc for %{name}
+
+Requires:       jpackage-utils
 
 %description    javadoc
 %{summary}.
 
 %package        demo
-Summary:	Demos for %{name}
-Group:		Development/Java
-Requires:	%{name} = %{epoch}:%{version}-%{release}
+Summary:        Demos for %{name}
+
+Requires:       %{name} = %{epoch}:%{version}-%{release}
 
 %description    demo
 %{summary}.
 
 %package        manual
-Summary:	Manual for %{name}
-Group:		Development/Java
-Requires:	%{name}-javadoc = %{epoch}:%{version}-%{release}
+Summary:        Manual for %{name}
+
+Requires:       %{name}-javadoc = %{epoch}:%{version}-%{release}
 
 %description    manual
 %{summary}.
 
+
 %prep
-%setup -qn commons-httpclient-%{version}
+%setup -q -n commons-httpclient-%{version}
 mkdir lib # duh
 rm -rf docs/apidocs docs/*.patch docs/*.orig docs/*.rej
 
-%patch0 -p1
+%patch0
+
 pushd src/conf
-sed -i 's/\r//' MANIFEST.MF
+%{__sed} -i 's/\r//' MANIFEST.MF
 %patch1
 popd
+
 %patch2
 %patch3 -p2
 
@@ -135,67 +136,57 @@ pushd src
     rm tempf
 popd
 
-# FIXME:	These tests fail due to absence of jks in libgcj. Disable them for now.
-rm -f src/test/org/apache/commons/httpclient/TestProxy.java
-rm -f src/test/org/apache/commons/httpclient/params/TestSSLTunnelParams.java
-
-sed -i 's/\r//' RELEASE_NOTES.txt
-sed -i 's/\r//' README.txt
-sed -i 's/\r//' LICENSE.txt
-
 %build
-export LC_ALL=ISO-8859-1
-export CLASSPATH=$(build-classpath jsse jce commons-codec commons-logging junit)
-%ant \
-	-Dbuild.sysclasspath=first \
-	-Djavadoc.j2sdk.link=%{_javadocdir}/java \
-	-Djavadoc.logging.link=%{_javadocdir}/commons-logging \
-	-Dtest.failonerror=false \
-	dist test
+ant \
+  -Dbuild.sysclasspath=first \
+  -Djavadoc.j2sdk.link=%{_javadocdir}/java \
+  -Djavadoc.logging.link=%{_javadocdir}/jakarta-commons-logging \
+  -Dtest.failonerror=false \
+  -Dlib.dir=%{_javadir} \
+  -Djavac.encoding=UTF-8 \
+  dist test
+
 
 %install
 # jars
-mkdir -p %{buildroot}%{_javadir}
+mkdir -p $RPM_BUILD_ROOT%{_javadir}
 cp -p dist/commons-httpclient.jar \
-  %{buildroot}%{_javadir}/%{name}-%{version}.jar
-(cd %{buildroot}%{_javadir} && for jar in *-%{version}.jar; do ln -sf ${jar} `echo $jar| sed "s|jakarta-||g"`; done)
-(cd %{buildroot}%{_javadir} && for jar in *-%{version}.jar; do ln -sf ${jar} `echo $jar| sed "s|-%{version}||g"`; done)
+  $RPM_BUILD_ROOT%{_javadir}/%{name}.jar
 # compat symlink
-pushd %{buildroot}%{_javadir}
-ln -s commons-httpclient.jar commons-httpclient3.jar
+pushd $RPM_BUILD_ROOT%{_javadir}
+ln -s jakarta-commons-httpclient.jar commons-httpclient3.jar
+ln -s jakarta-commons-httpclient.jar commons-httpclient.jar
 popd
 
 # javadoc
-mkdir -p %{buildroot}%{_javadocdir}
-mv dist/docs/api %{buildroot}%{_javadocdir}/%{name}-%{version}
+mkdir -p $RPM_BUILD_ROOT%{_javadocdir}
+mv dist/docs/api $RPM_BUILD_ROOT%{_javadocdir}/%{name}
 
 # demo
-mkdir -p %{buildroot}%{_datadir}/%{name}
-cp -pr src/examples src/contrib %{buildroot}%{_datadir}/%{name}
+mkdir -p $RPM_BUILD_ROOT%{_datadir}/%{name}
+cp -pr src/examples src/contrib $RPM_BUILD_ROOT%{_datadir}/%{name}
 
 # manual and docs
 rm -f dist/docs/{BUILDING,TESTING}.txt
 ln -s %{_javadocdir}/%{name}-%{version} dist/docs/apidocs
 
-%gcj_compile
-
-%if %{gcj_support}
-%post
-%{update_gcjdb}
-%endif
-
-%if %{gcj_support}
-%postun
-%{clean_gcjdb}
-%endif
+# maven POM and depmap
+install -d -m 755 $RPM_BUILD_ROOT%{_mavenpomdir}
+install -p -m 644 %{SOURCE1} $RPM_BUILD_ROOT%{_mavenpomdir}/JPP-%{name}.pom
+%add_maven_depmap
 
 %files
-%doc LICENSE.txt README.txt RELEASE_NOTES.txt
-%{_javadir}/*
-%{gcj_files}
+%doc LICENSE NOTICE
+%doc README RELEASE_NOTES
+%{_javadir}/%{name}.jar
+%{_javadir}/commons-httpclient3.jar
+%{_javadir}/commons-httpclient.jar
+%{_mavenpomdir}/JPP-%{name}.pom
+%{_mavendepmapfragdir}/%{name}
 
 %files javadoc
-%doc %{_javadocdir}/%{name}-%{version}
+%doc LICENSE NOTICE
+%doc %{_javadocdir}/%{name}
 
 %files demo
 %{_datadir}/%{name}
@@ -203,3 +194,185 @@ ln -s %{_javadocdir}/%{name}-%{version} dist/docs/apidocs
 %files manual
 %doc dist/docs/*
 
+
+%changelog
+* Sat Aug 03 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1:3.1-14
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_20_Mass_Rebuild
+
+* Thu Feb 14 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1:3.1-13
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_19_Mass_Rebuild
+
+* Mon Jan 21 2013 Mikolaj Izdebski <mizdebsk@redhat.com> - 1:3.1-12
+- Add missing connection hostname check against X.509 certificate name
+- Resolves: CVE-2012-5783
+
+* Thu Nov  1 2012 Mikolaj Izdebski <mizdebsk@redhat.com> - 1:3.1-11
+- Add maven POM
+
+* Thu Sep 20 2012 Mikolaj Izdebski <mizdebsk@redhat.com> - 1:3.1-10
+- Fix license tag
+
+* Thu Sep 20 2012 Mikolaj Izdebski <mizdebsk@redhat.com> - 1:3.1-9
+- Install LICENSE and NOTICE files
+- Add missing R: java, jpackage-utils
+
+* Thu Jul 19 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1:3.1-8
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
+* Sun Jan 22 2012 Andy Grimm <agrimm@gmail.com> - 1:3.1-7
+- Fix character encoding
+
+* Fri Jan 13 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1:3.1-6
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
+* Tue Jun 28 2011 Stanislav Ochotnicky <sochotnicky@redhat.com> - 1:3.1-5
+- Fix symlinks in javadir
+
+* Tue Jun 28 2011 Alexander Kurtakov <akurtako@redhat.com> 1:3.1-4
+- Fix FTBFS.
+- Adapt to current guidelines.
+
+* Wed Feb 09 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1:3.1-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
+
+* Wed Nov 10 2010 Alexander Kurtakov <akurtako@redhat.com> 1:3.1-2
+- Add missing requires on commons-codec.
+
+* Fri Jul 16 2010 Alexander Kurtakov <akurtako@redhat.com> 1:3.1-1
+- Drop gcj_support.
+- Fix FTBFS.
+
+* Fri Jul 24 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1:3.1-0.5
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_12_Mass_Rebuild
+
+* Wed Feb 25 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1:3.1-0.4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_11_Mass_Rebuild
+
+* Thu Jul 24 2008 Andrew Overholt <overholt@redhat.com> 1:3.1-0.3
+- Update OSGi MANIFEST.MF
+
+* Wed Jul  9 2008 Tom "spot" Callaway <tcallawa@redhat.com> - 1:3.1-0.2
+- drop repotag
+- fix license tag
+
+* Fri Apr 04 2008 Deepak Bhole <dbhole@redhat.com> - 0:3.1-0jpp.1
+- Update to 3.1
+
+* Tue Feb 19 2008 Fedora Release Engineering <rel-eng@fedoraproject.org> - 1:3.0.1-2jpp.2
+- Autorebuild for GCC 4.3
+
+* Thu Sep 06 2007 Andrew Overholt <overholt@redhat.com> 1:3.0.1-1jpp.2
+- Add OSGi MANIFEST.MF information.
+
+* Fri Mar 16 2007 Permaine Cheung <pcheung@redhat.com> - 1:3.0.1-1jpp.1
+- Merge with upstream and more rpmlint cleanup.
+
+* Thu Feb 15 2007 Fernando Nasser <fnasser@redhat.com> - 1:3.0.1-1jpp
+- Upgrade to 3.0.1
+
+* Fri Jan 26 2007 Permaine Cheung <pcheung@redhat.com> - 1:3.0-8jpp
+- Added versions for provides and obsoletes and rpmlint cleanup.
+
+* Thu Aug 10 2006 Deepak Bhole <dbhole@redhat.com> - 1:3.0-7jpp.1
+- Added missing requirements.
+- Added missing postun section for javadoc.
+
+* Sat Jul 22 2006 Jakub Jelinek <jakub@redhat.com> - 1:3.0-6jpp_2fc
+- Rebuilt
+
+* Thu Jul 20 2006 Deepak Bhole <dbhole@redhat.com> - 1:3.0-6jpp_1fc
+- Added conditional native compilation.
+- Disable certain ssl related tests that are known to fail with libgcj.
+
+* Thu Apr 06 2006 Fernando Nasser <fnasser@redhat.com> - 1:3.0-5jpp
+- Improve backwards compatibility and force removal of older versioned
+  packages
+
+* Thu Apr 06 2006 Fernando Nasser <fnasser@redhat.com> - 1:3.0-4jpp
+- Remove duplicate release definition
+- Require simply a jaxp 1.3
+
+* Thu Apr 06 2006 Fernando Nasser <fnasser@redhat.com> - 1:3.0-3jpp
+- BR xml-commons-jaxp-1.3-apis
+
+* Thu Apr 06 2006 Ralph Apel <r.apel@r-apel.de> - 1:3.0-2jpp
+- Fix tarball typo
+- assure javax classes are used instead of com.sun. ones
+
+* Wed Apr 05 2006 Ralph Apel <r.apel@r-apel.de> - 1:3.0-1jpp
+- 3.0 final, drop main version in name
+
+* Thu Oct 20 2005 Jason Corley <jason.corley@gmail.com> - 1:3.0-0.rc4.1jpp
+- 3.0rc4
+
+* Thu May 05 2005 Fernando Nasser <fnasser@redhat.com> - 1:3.0-0.rc2.1jpp
+- Update to 3.0 rc2.
+
+* Thu Nov  4 2004 Ville Skyttä <ville.skytta at iki.fi> - 1:2.0.2-1jpp
+- Update to 2.0.2.
+- Fix Group tag in -manual.
+
+* Sun Aug 23 2004 Randy Watler <rwatler at finali.com> - 0:2.0-2jpp
+- Rebuild with ant-1.6.2
+
+* Mon Feb 16 2004 Kaj J. Niemi <kajtzu@fi.basen.net> - 0:2.0-1jpp
+- 2.0 final
+
+* Thu Jan 22 2004 David Walluck <david@anti-microsoft.org> 0:2.0-0.rc3.1jpp
+- 2.0-rc3
+- bump epoch
+
+* Tue Oct 14 2003 Ville Skyttä <ville.skytta at iki.fi> - 0:2.0-3.rc2.1jpp
+- Update to 2.0rc2.
+- Manual subpackage.
+- Crosslink with local J2SE javadocs.
+- Own unversioned javadoc dir symlink.
+
+* Fri Aug 15 2003 Ville Skyttä <ville.skytta at iki.fi> - 0:2.0-3.rc1.1jpp
+- Update to 2.0rc1.
+- Include "jakarta-"-less jar symlinks for consistency with other packages.
+- Exclude example and contrib sources from main package, they're in -demo.
+
+* Wed Jul  9 2003 Ville Skyttä <ville.skytta at iki.fi> - 0:2.0-2.beta2.1jpp
+- Update to 2.0 beta 2.
+- Demo subpackage.
+- Crosslink with local commons-logging javadocs.
+
+* Wed Jun  4 2003 Ville Skyttä <ville.skytta at iki.fi> - 0:2.0-2.beta1.1jpp
+- Update to 2.0 beta 1.
+- Non-versioned javadoc symlinking.
+
+* Fri Apr  4 2003 Ville Skyttä <ville.skytta at iki.fi> - 0:2.0-1.alpha3.2jpp
+- Rebuild for JPackage 1.5.
+
+* Wed Feb 26 2003 Ville Skyttä <ville.skytta at iki.fi> - 2.0-1.alpha3.1jpp
+- Update to 2.0 alpha 3.
+- Fix Group tags.
+- Run standalone unit tests during build.
+
+* Thu Sep 12 2002 Ville Skyttä <ville.skytta at iki.fi> 2.0-0.cvs20020909.1jpp
+- Tune the rpm release number tag so rpm2html doesn't barf on it.
+
+* Mon Sep  9 2002 Ville Skyttä <ville.skytta at iki.fi> 2.0-0.20020909alpha1.1jpp
+- 2.0alpha1 snapshot 20020909.
+- Use sed instead of bash extensions when symlinking jars during build.
+- Add distribution tag.
+- Require commons-logging instead of log4j.
+
+* Sat Jan 19 2002 Guillaume Rousse <guillomovitch@users.sourceforge.net> 1.0-4jpp
+- renamed to jakarta-commons-httpclient
+- additional sources in individual archives
+- versioned dir for javadoc
+- no dependencies for javadoc package
+- dropped j2ee package
+- adapted to new jsse package
+- section macro
+
+* Fri Dec 7 2001 Guillaume Rousse <guillomovitch@users.sourceforge.net> 1.0-3jpp
+- javadoc into javadoc package
+
+* Sat Nov 3 2001 Guillaume Rousse <guillomovitch@users.sourceforge.net> 1.0-2jpp
+- fixed jsse subpackage
+
+* Fri Nov 2 2001 Guillaume Rousse <guillomovitch@users.sourceforge.net> 1.0-1jpp
+- first JPackage release
