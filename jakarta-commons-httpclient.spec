@@ -52,7 +52,7 @@ URL:            http://jakarta.apache.org/commons/httpclient/
 
 BuildArch:      noarch
 
-BuildRequires:  jpackage-utils >= 0:1.5
+BuildRequires:  maven-local
 BuildRequires:  ant
 BuildRequires:  apache-commons-codec
 BuildRequires:  apache-commons-logging >= 0:1.0.3
