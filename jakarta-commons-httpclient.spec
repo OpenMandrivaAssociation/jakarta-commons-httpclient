@@ -33,8 +33,9 @@
 
 Name:           jakarta-commons-httpclient
 Version:        3.1
-Release:        14.1%{?dist}
+Release:        20.1
 Epoch:          1
+Group:		Development/Java
 Summary: Jakarta Commons HTTPClient implements the client side of HTTP standards
 License:        ASL 2.0 and (ASL 2.0 or LGPLv2+)
 Source0:        http://archive.apache.org/dist/httpcomponents/commons-httpclient/source/commons-httpclient-3.1-src.tar.gz
@@ -46,6 +47,7 @@ Patch2:         %{name}-encoding.patch
 # CVE-2012-5783: missing connection hostname check against X.509 certificate name
 # https://fisheye6.atlassian.com/changelog/httpcomponents?cs=1422573
 Patch3:         %{name}-CVE-2012-5783.patch
+Patch4:		%{name}-CVE-2014-3577.patch
 URL:            http://jakarta.apache.org/commons/httpclient/
 
 BuildArch:      noarch
@@ -59,7 +61,6 @@ BuildRequires:  apache-commons-logging-javadoc
 BuildRequires:  junit
 
 Requires:       java
-Requires:       jpackage-utils
 Requires:       apache-commons-logging >= 0:1.0.3
 Requires:       apache-commons-codec
 
@@ -88,8 +89,6 @@ for distributed communication.
 
 %package        javadoc
 Summary:        Javadoc for %{name}
-
-Requires:       jpackage-utils
 
 %description    javadoc
 %{summary}.
@@ -125,6 +124,7 @@ popd
 
 %patch2
 %patch3 -p2
+%patch4 -p1
 
 # Use javax classes, not com.sun ones
 # assume no filename contains spaces
@@ -135,6 +135,10 @@ pushd src
     done
     rm tempf
 popd
+
+%mvn_alias : apache:commons-httpclient
+
+%mvn_file ":{*}" jakarta-@1 "@1" commons-%{short_name}3
 
 %build
 ant \
@@ -148,45 +152,23 @@ ant \
 
 
 %install
-# jars
-mkdir -p $RPM_BUILD_ROOT%{_javadir}
-cp -p dist/commons-httpclient.jar \
-  $RPM_BUILD_ROOT%{_javadir}/%{name}.jar
-# compat symlink
-pushd $RPM_BUILD_ROOT%{_javadir}
-ln -s jakarta-commons-httpclient.jar commons-httpclient3.jar
-ln -s jakarta-commons-httpclient.jar commons-httpclient.jar
-popd
-
-# javadoc
-mkdir -p $RPM_BUILD_ROOT%{_javadocdir}
-mv dist/docs/api $RPM_BUILD_ROOT%{_javadocdir}/%{name}
+%mvn_artifact %{SOURCE1} dist/commons-httpclient.jar
+%mvn_install -J dist/docs/api
 
 # demo
 mkdir -p $RPM_BUILD_ROOT%{_datadir}/%{name}
 cp -pr src/examples src/contrib $RPM_BUILD_ROOT%{_datadir}/%{name}
 
 # manual and docs
-rm -f dist/docs/{BUILDING,TESTING}.txt
-ln -s %{_javadocdir}/%{name}-%{version} dist/docs/apidocs
+rm -Rf dist/docs/{api,BUILDING.txt,TESTING.txt}
+ln -s %{_javadocdir}/%{name} dist/docs/apidocs
 
-# maven POM and depmap
-install -d -m 755 $RPM_BUILD_ROOT%{_mavenpomdir}
-install -p -m 644 %{SOURCE1} $RPM_BUILD_ROOT%{_mavenpomdir}/JPP-%{name}.pom
-%add_maven_depmap
-
-%files
+%files -f .mfiles
 %doc LICENSE NOTICE
 %doc README RELEASE_NOTES
-%{_javadir}/%{name}.jar
-%{_javadir}/commons-httpclient3.jar
-%{_javadir}/commons-httpclient.jar
-%{_mavenpomdir}/JPP-%{name}.pom
-%{_mavendepmapfragdir}/%{name}
 
-%files javadoc
+%files javadoc -f .mfiles-javadoc
 %doc LICENSE NOTICE
-%doc %{_javadocdir}/%{name}
 
 %files demo
 %{_datadir}/%{name}
