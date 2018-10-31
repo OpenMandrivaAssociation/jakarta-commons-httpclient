@@ -33,7 +33,7 @@
 
 Name:           jakarta-commons-httpclient
 Version:        3.1
-Release:        20.2
+Release:        20.3
 Epoch:          1
 Group:		Development/Java
 Summary: Jakarta Commons HTTPClient implements the client side of HTTP standards
