@@ -48,7 +48,7 @@ Patch2:         %{name}-encoding.patch
 # https://fisheye6.atlassian.com/changelog/httpcomponents?cs=1422573
 Patch3:         %{name}-CVE-2012-5783.patch
 Patch4:		%{name}-CVE-2014-3577.patch
-URL:            http://jakarta.apache.org/commons/httpclient/
+URL:            https://jakarta.apache.org/commons/httpclient/
 
 BuildArch:      noarch
 
